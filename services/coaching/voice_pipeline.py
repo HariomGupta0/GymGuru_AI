@@ -100,11 +100,17 @@ class VoicePipeline:
             if now - self.last_spoken_at < 5:
                 return None
             
-        text = self.llm.give_feedback(event, issue)
+        try:
+            text = self.llm.give_feedback(event, issue)
+        except Exception:
+            text = issue or "Keep your core tight and maintain clean form!"
         
         voice = None
-        if not st.session_state.get("mute_audio", False):
-            voice = self.tts.speak(text)
+        if not st.session_state.get("mute_audio", False) and text:
+            try:
+                voice = self.tts.speak(text)
+            except Exception:
+                voice = None
 
         self.last_spoken_at = now
 
