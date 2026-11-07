@@ -2,7 +2,7 @@ from services.config.workout_config import PROMPT
 
 
 class LLMCoach:
-    def __init__(self,groq_client):
+    def __init__(self, groq_client):
         self.client = groq_client
         self.history = []
         self.system_prompt = PROMPT
@@ -11,7 +11,7 @@ class LLMCoach:
         prompt = f"Event: {event}"
 
         if issue:
-            prompt += f"Form Issue: {issue}"
+            prompt += f" Form Issue: {issue}"
 
         messages = [
             {"role": "system", "content": self.system_prompt},
@@ -22,12 +22,11 @@ class LLMCoach:
         response = self.client.chat.completions.create(
             model="qwen/qwen3.8-27b",
             messages=messages,
-            temperature=0.4
+            temperature=0.4,
         )
 
         text = response.choices[0].message.content.strip()
-
         self.history.append({"role": "assistant", "content": text})
 
         return text
-        
+    
