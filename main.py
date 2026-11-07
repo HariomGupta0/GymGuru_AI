@@ -256,26 +256,24 @@ def main():
             unsafe_allow_html=True,
         )
     else:
+        ice_servers = [
+            {"urls": ["stun:stun.l.google.com:19302"]},
+            {"urls": ["stun:stun1.l.google.com:19302"]},
+            {"urls": ["stun:stun2.l.google.com:19302"]},
+        ]
+
+        if hasattr(st, "secrets") and "TURN_URL" in st.secrets:
+            ice_servers.append({
+                "urls": [st.secrets["TURN_URL"]],
+                "username": st.secrets.get("TURN_USERNAME", ""),
+                "credential": st.secrets.get("TURN_PASSWORD", st.secrets.get("TURN_CREDENTIAL", "")),
+            })
+
         context = webrtc_streamer(
             key="exercise-analysis",
             mode=WebRtcMode.SENDRECV,
             video_processor_factory= VideoProcessorClass,
-            rtc_configuration={
-                "iceServers": [
-                    {"urls": ["stun:stun.l.google.com:19302"]},
-                    {"urls": ["stun:openrelay.metered.ca:80"]},
-                    {
-                        "urls": ["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443"],
-                        "username": "openrelayproject",
-                        "credential": "openrelayproject"
-                    },
-                    {
-                        "urls": ["turn:openrelay.metered.ca:443?transport=tcp"],
-                        "username": "openrelayproject",
-                        "credential": "openrelayproject"
-                    }
-                ]
-            },
+            rtc_configuration={"iceServers": ice_servers},
             media_stream_constraints={
                 "video": True,
                 "audio": False
