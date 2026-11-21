@@ -1,23 +1,79 @@
-# Byte-compiled / optimized / DLL files
+# ==============================================================================
+# Python & Environment
+# ==============================================================================
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Environments
+# Virtual Environments
 .venv/
 .venv*/
 env/
 venv/
 ENV/
+env.bak/
+venv.bak/
 
-# Sensitive data (like API keys)
+# Environment Variables & Secrets
 .env
-INTERVIEW_PREP.md
+.env.*
+!.env.example
 
-# SQLite Database
+# Local SQLite Database & Artifacts
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
 data.db
 
-# OS files
+# Project-Specific Excluded Documents
+INTERVIEW_PREP.md
+
+# AI Tooling & Agent Artifacts
+.agents/
+.agent/
+.antigravity/
+.claude/
+.cursor/
+.codex/
+skills-lock.json
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating System Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Testing & Logs
+*.log
+.pytest_cache/
+.coverage
+htmlcov/

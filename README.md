@@ -84,8 +84,8 @@ graph TD
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/HariomGupta0/AI_Gym_Buddy.git
-cd AI_Gym_Buddy
+git clone https://github.com/HariomGupta0/GymGuru_AI.git
+cd GymGuru_AI
 ```
 
 ### 2. Configure Environment Variables
