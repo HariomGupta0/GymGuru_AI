@@ -85,8 +85,9 @@ flowchart LR
 | **Proactive Voice Coach** | Groq Cloud (`qwen/qwen3.8-27b`) | Formulates high-energy, context-aware 10–15 word voice corrections | Dynamic natural language coaching cues |
 | **Speech Playback** | Google Text-to-Speech (`gTTS`) | Synthesizes coaching strings into audio with a 5s debounce cooldown | Autoplay MP3 audio in browser client |
 
-<details>
-<summary><b>🔍 View Detailed Multi-Threaded Execution Sequence Diagram</b></summary>
+### Real-Time Execution Sequence
+
+This sequence diagram illustrates the frame-by-frame processing loop and event debouncing across client and background threads:
 
 ```mermaid
 sequenceDiagram
@@ -122,8 +123,6 @@ sequenceDiagram
         TTS-->>Audio: Autoplay spoken feedback in browser
     end
 ```
-
-</details>
 
 ---
 
