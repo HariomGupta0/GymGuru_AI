@@ -1,180 +1,444 @@
 /* =========================================================
-   GLOBAL THEME
+   GYMGURU AI - PREMIUM DARK ATHLETIC DESIGN SYSTEM
+   Palette:
+     Main BG:       #090D14
+     Secondary BG:  #101722
+     Card Surface:  #151E2B
+     Elevated:      #1C2736
+     Primary Lime:  #A3E635
+     Electric Cyan: #38BDF8
+     Text Primary:  #F8FAFC
+     Text Muted:    #94A3B8
+     Success:       #22C55E
+     Error:         #EF4444
+     Warning:       #F59E0B
 ========================================================= */
 
+/* Root & Global Overrides */
+:root {
+  --bg-main: #090D14;
+  --bg-secondary: #101722;
+  --bg-card: #151E2B;
+  --bg-elevated: #1C2736;
+  --accent-lime: #A3E635;
+  --accent-cyan: #38BDF8;
+  --text-primary: #F8FAFC;
+  --text-muted: #94A3B8;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(163, 230, 53, 0.3);
+  --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+}
+
 .stApp {
-  background-color: #0A0D14;
-  color: #fff;
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+  font-family: 'AdobeClean', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 [data-testid="stSidebar"] {
-  background-color: #111520;
+  background-color: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-subtle) !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+  color: var(--text-muted);
 }
 
 /* =========================================================
-   TYPOGRAPHY (SCOPED – safer)
+   RESPONSIVE FULL-WIDTH CONTAINER (Desktop / Laptop 1366px - 1920px)
 ========================================================= */
-
 .block-container {
-  font-family: 'AdobeClean', sans-serif;
-}
-
-/* =========================================================
-   LAYOUT
-========================================================= */
-
-.block-container {
-  padding: 50px 3rem !important;
-  max-width: 750px !important;
-}
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-button,
-.stButton button,
-.stDownloadButton button,
-.MuiBox-root button {
-  background-color: #181D2A !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 0 !important;
+  padding: 1.5rem 2.5rem 3rem 2.5rem !important;
+  max-width: 1500px !important;
+  margin: 0 auto !important;
   font-family: 'AdobeClean', sans-serif !important;
 }
 
-/* =========================================================
-   INPUTS & TEXT ELEMENTS
-========================================================= */
+@media (max-width: 768px) {
+  .block-container {
+    padding: 1rem 1rem 2rem 1rem !important;
+  }
+}
 
+/* =========================================================
+   TYPOGRAPHY
+========================================================= */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'AdobeClean', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+p, span, label, li {
+  font-family: 'AdobeClean', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* =========================================================
+   MODERN BUTTONS (Rounded 10px, Smooth Hover)
+========================================================= */
+button,
+.stButton > button,
+.stDownloadButton > button {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 10px !important;
+  font-family: 'AdobeClean', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  padding: 0.6rem 1.4rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+button:hover,
+.stButton > button:hover {
+  background-color: #243245 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Primary Action Buttons (Electric Lime CTA) */
+.stButton > button[kind="primary"],
+.btn-primary {
+  background-color: var(--accent-lime) !important;
+  color: #090D14 !important;
+  border: none !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 16px rgba(163, 230, 53, 0.25) !important;
+}
+
+.stButton > button[kind="primary"]:hover,
+.btn-primary:hover {
+  background-color: #bbf451 !important;
+  box-shadow: 0 6px 20px rgba(163, 230, 53, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Secondary / End Workout Button (Coral Red Accent) */
+.btn-danger button,
+.stButton > button[kind="secondaryFormSubmit"] {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  color: #F87171 !important;
+  border-radius: 10px !important;
+}
+
+.btn-danger button:hover {
+  background-color: rgba(239, 68, 68, 0.22) !important;
+  border-color: #EF4444 !important;
+  color: #FEF2F2 !important;
+}
+
+/* =========================================================
+   INPUTS & FORM CONTROLS
+========================================================= */
 input,
 textarea,
-p,
-li,
-code,
 [data-testid="stSelectbox"] > div > div,
 [data-baseweb="select"] > div,
+[data-testid="stNumberInputContainer"] {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 10px !important;
+  font-family: 'AdobeClean', sans-serif !important;
+  transition: border-color 0.15s ease !important;
+}
+
+input:focus,
+[data-baseweb="select"] > div:focus-within {
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}
+
 [data-baseweb="popover"] ul,
 [data-baseweb="menu"] {
-  border-radius: 0 !important;
-  font-family: 'AdobeClean', sans-serif !important;
+  background-color: var(--bg-elevated) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+/* Form Container */
+.stForm {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 16px !important;
+  padding: 1.8rem !important;
+  box-shadow: var(--shadow-card) !important;
 }
 
 /* =========================================================
-   METRICS
+   CARDS & CONTAINERS
 ========================================================= */
-
-[data-testid="stMetric"] {
-  background-color: #181D2A;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1rem 1.2rem;
-  border-radius: 0;
+.app-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease;
 }
 
-[data-testid="stMetric"] div {
+.app-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.hero-card {
+  background: linear-gradient(135deg, rgba(21, 30, 43, 0.95) 0%, rgba(16, 23, 34, 0.95) 100%);
+  border: 1px solid rgba(163, 230, 53, 0.2);
+  border-radius: 18px;
+  padding: 2.2rem;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(163, 230, 53, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* =========================================================
+   LIVE WORKOUT HUD COMPONENTS (High-Visibility from 6-8 ft)
+========================================================= */
+.hud-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: var(--shadow-card);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
-[data-testid="stMetricValue"] {
-  font-size: 1.5rem !important;
-  font-weight: 400 !important;
+/* Big Rep Counter Box */
+.giant-rep-container {
+  background: linear-gradient(180deg, #1C2736 0%, #151E2B 100%);
+  border: 1px solid rgba(163, 230, 53, 0.25);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.giant-rep-num {
+  font-size: 3.8rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-lime);
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 10px rgba(163, 230, 53, 0.2);
+}
+
+.giant-rep-target {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.3rem;
+}
+
+/* Status Badges & Pills */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-pill-good {
+  background-color: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #4ADE80;
+}
+
+.status-pill-fault {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #F87171;
+}
+
+.status-pill-neutral {
+  background-color: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38BDF8;
+}
+
+.status-pill-live {
+  background-color: rgba(239, 68, 68, 0.18);
+  border: 1px solid #EF4444;
+  color: #FCA5A5;
+  animation: pulse-live 2s infinite ease-in-out;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* AI Coach Speech Bubble */
+.coach-bubble {
+  background: linear-gradient(135deg, rgba(28, 39, 54, 0.95) 0%, rgba(21, 30, 43, 0.95) 100%);
+  border-left: 4px solid var(--accent-lime);
+  border-top: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 1.1rem 1.4rem;
+  margin-top: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.coach-bubble-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.coach-bubble-text {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* Video Wrapper */
+.video-wrapper {
+  background-color: #05070B;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.7);
+  position: relative;
+}
+
+/* =========================================================
+   STREAMLIT METRIC WIDGET OVERRIDES
+========================================================= */
+[data-testid="stMetric"] {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 14px !important;
+  padding: 1.1rem 1.3rem !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 0.15s ease, border-color 0.15s ease !important;
+}
+
+[data-testid="stMetric"]:hover {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px) !important;
 }
 
 [data-testid="stMetricLabel"] {
-  font-size: 15px !important;
-  opacity: 0.6;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
 }
 
-[data-testid="stMetric"] div label p {
-  font-size: 16px !important;
-}
-
-/* =========================================================
-   CONTAINERS / CARDS
-========================================================= */
-
-.stContainer,
-.stExpander,
-.stTabs,
-.stColumns,
-.stPopover,
-.stAlertContainer,
-.stStatusContainer,
-.stMetric,
-.stTable,
-.stDataFrame,
-.stForm,
-.stSelectbox,
-[data-baseweb="select"] > div,
-[data-testid="stForm"],
-[data-testid="stMetric"],
-[data-testid="stNumberInputContainer"],
-[data-testid="stDataFrameColumnMenu"],
-[data-testid="stHeadingWithActionElements"],
-[data-testid="stCaptionContainer"] p,
-[data-testid="stAlertContentInfo"] p,
-[data-testid="stSidebarNavLink"],
-[data-testid="stMarkdownContainer"] h3,
-[data-baseweb="popover"],
-[data-baseweb="menu"],
-div[role="menu"],
-div[role="menuitem"] {
-  border-radius: 0 !important;
-  font-family: 'AdobeClean', sans-serif !important;
+[data-testid="stMetricValue"] {
+  font-size: 1.85rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.02em !important;
 }
 
 /* =========================================================
-   DATAFRAME FIX
+   EXPANDER & TABLES
 ========================================================= */
+.stExpander {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
 
-.stDataFrame,
-.stDataFrame div,
-.stDataFrameGlideDataEditor {
-  border-radius: 0 !important;
-  font-family: 'AdobeClean', sans-serif !important;
+.stExpander summary {
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  padding: 1rem 1.2rem !important;
+}
+
+table {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  font-size: 0.92rem !important;
+}
+
+th {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-muted) !important;
+  text-transform: uppercase !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 0.8rem 1rem !important;
+}
+
+td {
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 0.8rem 1rem !important;
 }
 
 /* =========================================================
-   INTERACTIVE ELEMENTS
+   LOGIN SCREEN BRANDING WRAPPER
 ========================================================= */
-
-.stTextInput,
-.stTextArea,
-.stNumberInput,
-.stSlider,
-.stMultiselect,
-.stRadio,
-.stCheckbox,
-.stToggle,
-.stFileUploader,
-.stColorPicker,
-.stDateInput,
-.stTimeInput,
-.stCameraInput,
-[data-testid="stTextInput"] > div,
-[data-testid="stButton"] button,
-[data-testid="stBaseButton-secondaryFormSubmit"],
-[data-testid="stStatusWidget"] {
-  border-radius: 0 !important;
-  font-family: 'AdobeClean', sans-serif !important;
+.login-container {
+  max-width: 480px;
+  margin: 4rem auto;
+  background: linear-gradient(180deg, #151E2B 0%, #101722 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2.5rem 2.2rem;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+  text-align: center;
 }
 
-/* =========================================================
-   MARKDOWN
-========================================================= */
-
-[data-testid="stMarkdownContainer"] strong {
-  font-family: 'AdobeClean', sans-serif !important;
+.login-badge {
+  display: inline-block;
+  background: rgba(163, 230, 53, 0.12);
+  border: 1px solid rgba(163, 230, 53, 0.3);
+  color: var(--accent-lime);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  margin-bottom: 1.2rem;
 }
 
-/* =========================================================
-   FORM
-========================================================= */
+.login-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  color: #F8FAFC;
+}
 
-.stForm {
-  margin-top: 2rem !important;
-  padding: 1.5rem 1rem !important;
-  background-color: #181D2A !important;
-  color: #fff;
+.login-subtitle {
+  font-size: 0.98rem;
+  color: #94A3B8;
+  margin-bottom: 2rem;
+  line-height: 1.5;
 }
