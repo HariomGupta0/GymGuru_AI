@@ -38,55 +38,55 @@ Using **MediaPipe Pose Landmarker** and custom biomechanical angle calculators, 
 
 ## 🏗️ System Architecture
 
-### 1. High-Level Pipeline Flowchart
+### Dual-Track Pipeline Flowchart
 
 ```mermaid
 flowchart LR
-    %% Modern Theme Styles
+    %% Modern Theme Styling
     classDef client fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
     classDef stream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
     classDef vision fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
     classDef storage fill:#451a03,stroke:#fb923c,stroke-width:2px,color:#f8fafc;
     classDef coach fill:#4c0519,stroke:#fb7185,stroke-width:2px,color:#f8fafc;
 
-    subgraph CLIENT["1. Ingestion & Display"]
-        direction TB
-        CAM["📷 Client Webcam"]:::client
-        HUD["🖥️ Streamlit Real-Time HUD"]:::client
-        SPK["🔊 Browser Audio (gTTS)"]:::client
+    %% Track 1: Real-Time Vision Loop
+    subgraph T1["⚡ Track 1: Real-Time Vision Loop (~30 FPS)"]
+        direction LR
+        CAM["📷 <b>Webcam Stream</b><br/>WebRTC Ingest"]:::client
+        --> RTC["⚡ <b>Video Worker</b><br/>aiortc / PyAV"]:::stream
+        --> MP["🤖 <b>MediaPipe</b><br/>33 3D Landmarks"]:::vision
+        --> DET["📐 <b>Detectors</b><br/>Angles & Rep Logic"]:::vision
+        --> HUD["🖥️ <b>Visual HUD</b><br/>Skeletal Feedback"]:::client
     end
 
-    subgraph VISION_PIPE["2. Real-Time Vision & Tracking"]
-        direction TB
-        RTC["⚡ Streamlit-WebRTC<br/>(aiortc / PyAV Worker)"]:::stream
-        MP["🤖 MediaPipe Pose<br/>(33 3D Joint Coordinates)"]:::vision
-        DET["📐 Exercise Detectors<br/>(Angle Math & Hysteresis)"]:::vision
+    %% Track 2: Intelligence & Persistence Loop
+    subgraph T2["🧠 Track 2: Intelligence & Persistence Loop (Asynchronous)"]
+        direction LR
+        SYNC["📊 <b>Metrics Engine</b><br/>Thread-Safe Lock"]:::stream
+        --> DB[("💾 <b>SQLite Database</b><br/>Volume & Set History")]:::storage
+        SYNC --> LLM["🧠 <b>Groq Cloud LLM</b><br/>Qwen-27B Inference"]:::coach
+        --> TTS["🎙️ <b>Google TTS</b><br/>gTTS Synthesis"]:::coach
+        --> SPK["🔊 <b>Voice Coach</b><br/>Browser Autoplay"]:::client
     end
 
-    subgraph AI_BACKEND["3. State, Storage & AI Voice Coach"]
-        direction TB
-        ENG["📊 Metrics Engine<br/>(Thread-Safe Sync Lock)"]:::stream
-        DB[("💾 SQLite Database<br/>(Workout History & KPIs)")]:::storage
-        LLM["🧠 Groq Cloud LLM<br/>(qwen/qwen3.8-27b)"]:::coach
-        TTS["🎙️ Google TTS Engine<br/>(gTTS Audio Synthesis)"]:::coach
-    end
-
-    %% Real-time Vision Loop
-    CAM -->|"H.264/VP8 (~30 FPS)"| RTC
-    RTC -->|"BGR Video Frames"| MP
-    MP -->|"Joint Coordinates"| DET
-    DET -->|"Skeletal Overlay"| RTC
-    RTC -->|"Rendered Visual Feed"| HUD
-
-    %% Metrics & Voice Coaching Loop
-    DET -->|"Reps, Sets & Faults"| ENG
-    ENG -->|"Save Set Data"| DB
-    ENG -->|"5s Cooldown Trigger"| LLM
-    LLM -->|"10-15 Word Correction"| TTS
-    TTS -->|"Base64 MP3 Audio"| SPK
+    %% Inter-track Coordination
+    DET -.->|"Periodic Sync (~250ms)"| SYNC
 ```
 
-### 2. Real-Time Execution Sequence
+### Architectural Component Specifications
+
+| Architecture Layer | Core Technology | Primary Responsibility | Data Output / Interface |
+| :--- | :--- | :--- | :--- |
+| **Client Ingestion** | `streamlit-webrtc` / WebRTC | Captures live camera feed with ICE/STUN NAT traversal | H.264/VP8 video stream (~30 FPS) |
+| **Pose Estimation** | MediaPipe (`pose_landmarker_full.task`) | Tracks 33 spatial body landmarks in normalized $(x, y, z)$ coordinates | 33 3D body landmark vectors |
+| **Biomechanical Engine** | Vector Geometry & State Machines | Calculates joint flexion angles and manages dual-threshold rep counting | Joint angles ($\theta$), rep increments, form fault tags |
+| **State Synchronization** | Thread-Safe Lock (`threading.Lock`) | Decouples video worker processing from Streamlit main thread execution | Synchronized session state metrics |
+| **Data Persistence** | SQLite3 (`data.db`) & Pandas | Logs timestamped sets, completed reps, and active duration | Relational tables & visual Altair analytics |
+| **Proactive Voice Coach** | Groq Cloud (`qwen/qwen3.8-27b`) | Formulates high-energy, context-aware 10–15 word voice corrections | Dynamic natural language coaching cues |
+| **Speech Playback** | Google Text-to-Speech (`gTTS`) | Synthesizes coaching strings into audio with a 5s debounce cooldown | Autoplay MP3 audio in browser client |
+
+<details>
+<summary><b>🔍 View Detailed Multi-Threaded Execution Sequence Diagram</b></summary>
 
 ```mermaid
 sequenceDiagram
@@ -122,6 +122,8 @@ sequenceDiagram
         TTS-->>Audio: Autoplay spoken feedback in browser
     end
 ```
+
+</details>
 
 ---
 
