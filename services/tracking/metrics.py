@@ -114,15 +114,6 @@ def sync_metrics_update(context):
                         st.session_state.audio_to_play, st.session_state.coach_feedback = result
             else:
                 st.session_state.workout_started = False
-                st.session_state.show_summary = True
-                started_at = st.session_state.get("workout_started_at", time.time())
-                st.session_state.workout_summary = {
-                    "exercise": exercise,
-                    "total_reps": st.session_state.get("reps", 0),
-                    "sets_completed": target_sets,
-                    "target_sets": target_sets,
-                    "duration": time.time() - started_at
-                }
                 if st.session_state.get("voice_pipeline"):
                     result = st.session_state.voice_pipeline.process_event(
                         event="workout_completed",
@@ -133,15 +124,6 @@ def sync_metrics_update(context):
                         st.session_state.audio_to_play, st.session_state.coach_feedback = result
         else:
             st.session_state.workout_started = False
-            st.session_state.show_summary = True
-            started_at = st.session_state.get("workout_started_at", time.time())
-            st.session_state.workout_summary = {
-                "exercise": exercise,
-                "total_reps": st.session_state.get("reps", 0),
-                "sets_completed": target_sets,
-                "target_sets": target_sets,
-                "duration": time.time() - started_at
-            }
             if st.session_state.get("voice_pipeline"):
                 result = st.session_state.voice_pipeline.process_event(
                     event="workout_completed",
