@@ -262,20 +262,48 @@ def main():
             {"urls": ["stun:stun2.l.google.com:19302"]},
         ]
 
-        if hasattr(st, "secrets") and "TURN_URL" in st.secrets:
+        turn_url = os.environ.get("TURN_URL", "")
+        turn_username = os.environ.get("TURN_USERNAME", "")
+        turn_password = os.environ.get("TURN_PASSWORD", "")
+
+        if hasattr(st, "secrets"):
+            turn_url = st.secrets.get("TURN_URL", turn_url)
+            turn_username = st.secrets.get("TURN_USERNAME", turn_username)
+            turn_password = st.secrets.get("TURN_PASSWORD", st.secrets.get("TURN_CREDENTIAL", turn_password))
+
+        if turn_url:
+            if isinstance(turn_url, str):
+                urls = [u.strip() for u in turn_url.split(",") if u.strip()]
+            elif isinstance(turn_url, list):
+                urls = list(turn_url)
+            else:
+                urls = [str(turn_url)]
+
+            # Auto-inject TCP transport variants for networks that block UDP
+            tcp_urls = []
+            for u in urls:
+                if (u.startswith("turn:") or u.startswith("turns:")) and "transport=" not in u:
+                    tcp_urls.append(f"{u}?transport=tcp")
+
+            all_turn_urls = urls + [t for t in tcp_urls if t not in urls]
+
             ice_servers.append({
-                "urls": [st.secrets["TURN_URL"]],
-                "username": st.secrets.get("TURN_USERNAME", ""),
-                "credential": st.secrets.get("TURN_PASSWORD", st.secrets.get("TURN_CREDENTIAL", "")),
+                "urls": all_turn_urls,
+                "username": str(turn_username),
+                "credential": str(turn_password),
             })
 
         context = webrtc_streamer(
             key="exercise-analysis",
             mode=WebRtcMode.SENDRECV,
-            video_processor_factory= VideoProcessorClass,
+            video_processor_factory=VideoProcessorClass,
             rtc_configuration={"iceServers": ice_servers},
             media_stream_constraints={
-                "video": True,
+                "video": {
+                    "width": {"ideal": 640},
+                    "height": {"ideal": 480},
+                    "frameRate": {"ideal": 30}
+                },
                 "audio": False
             },
             async_processing=True
