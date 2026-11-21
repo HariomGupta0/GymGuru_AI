@@ -1,117 +1,155 @@
-# 🏋️‍♂️ GymGuru AI: Real-Time Pose Detection & AI Voice Coach
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/header/gradient.svg?title=GymGuru+AI&subtitle=Real-Time+Pose+Tracking+%26+Voice+Coach&theme=emerald&mode=dark" />
+    <img alt="GymGuru AI Banner" src="https://shieldcn.dev/header/gradient.svg?title=GymGuru+AI&subtitle=Real-Time+Pose+Tracking+%26+Voice+Coach&theme=emerald&mode=light" width="100%" />
+  </picture>
+</p>
 
-GymGuru AI is a web-based, real-time fitness companion built with **Python 3.12**, **MediaPipe**, **Streamlit-WebRTC**, and **Groq Cloud LLM**. It utilizes computer vision to analyze your workouts through your webcam, counts your reps and sets, checks your exercise posture/form, and provides proactive voice corrections in real-time.
+<p align="center">
+  <a href="https://www.python.org/"><img alt="Python 3.12" src="https://shieldcn.dev/badge/python-3.12-emerald.svg?logo=python&variant=secondary" /></a>
+  <a href="https://streamlit.io/"><img alt="Streamlit" src="https://shieldcn.dev/badge/streamlit-1.54.0-rose.svg?logo=streamlit&variant=secondary" /></a>
+  <a href="https://developers.google.com/mediapipe"><img alt="MediaPipe" src="https://shieldcn.dev/badge/mediapipe-0.10.14-blue.svg?logo=google&variant=secondary" /></a>
+  <a href="https://groq.com/"><img alt="Groq LLM" src="https://shieldcn.dev/badge/groq-qwen_27b-orange.svg?logo=groq&variant=secondary" /></a>
+  <a href="https://github.com/HariomGupta0/GymGuru_AI/stargazers"><img alt="GitHub Stars" src="https://shieldcn.dev/github/stars/HariomGupta0/GymGuru_AI.svg?variant=secondary" /></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://shieldcn.dev/github/license/HariomGupta0/GymGuru_AI.svg?variant=secondary" /></a>
+</p>
 
 ---
 
-## 📺 Project Demo Video / Interface Screenshot
+## 📌 Overview
 
-> [!TIP]
-> *Add your demo video file or screenshot below by replacing the placeholder:*
+**GymGuru AI** is an intelligent, browser-based personal gym trainer that brings real-time exercise analysis and spoken coaching directly into your home workouts through a standard webcam. 
 
-<!-- REPLACE THIS LINE WITH YOUR DEMO VIDEO/IMAGE LINK -->
-```
-                   [ PLACE YOUR DEMO VIDEO / IMAGE HERE ]
-    (e.g., <img src="demo.gif" width="700" alt="GymGuru AI Demo">)
-```
+Using **MediaPipe Pose Landmarker** and custom biomechanical angle calculators, GymGuru AI tracks 33 body landmarks per frame, counts reps via dual-threshold hysteresis state machines, detects posture mistakes (such as sagging hips, knee caving, or torso swinging), and delivers instant, motivational voice cues powered by **Groq Cloud LLM (`qwen/qwen3.8-27b`)** and **Google Text-to-Speech (gTTS)**.
 
 ---
 
 ## 🚀 Key Features
 
-* **Real-Time Pose Tracking**: Leverages MediaPipe's high-performance pose landmark model to track 33 body coordinates in real time.
-* **Proactive Voice Coaching**: Powered by **Groq's Qwen-27B LLM** (`qwen/qwen3.8-27b`) and **Google Text-to-Speech (gTTS)**, the coach speaks out loud to correct your form, motivate you, and celebrate set completions.
-* **Smart Posture Checking**: Instantly detects specific joint alignments, hip sagging, back arching, elbow drifts, and balance status across 7 exercises.
-* **Dual Workout Modes**: Supports **Single Exercise** training and custom sequential **Circuit Mode** with auto-advancing exercise queues.
-* **Workout History Tracker**: Automatically logs your performance (sets, reps, active time) to a local SQLite database and displays a visual history summary with KPIs, volume bar charts, and daily activity trends.
-* **Seamless Streaming**: Powered by `streamlit-webrtc` with STUN/TURN traversal to support smooth web-based video processing with low latency.
-* **Modern Dark UI**: Features customized styling, custom font layouts, and responsive panels for clean visuals.
+* **Real-Time 33-Landmark Pose Tracking**: Leverages MediaPipe's high-precision model (`pose_landmarker_full.task`) to calculate multi-joint angles across the sagittal and frontal planes.
+* **Proactive Spoken Voice Coaching**: Generates 10–15 word high-energy coaching cues through Groq Cloud LLM (`qwen/qwen3.8-27b`), synthesized to audio via `gTTS` with an automated 5-second cooldown debounce on active form errors.
+* **Dual-Threshold Rep & Set Counting**: Eliminates bounce oscillation using hysteresis state machines that require crossing distinct inflection and extension boundaries.
+* **7 Supported Exercises**: Complete biomechanical heuristics for **Squats, Push-ups, Biceps Curls, Shoulder Press, Lunges, Planks, and Jumping Jacks**.
+* **Dual Workout Modes**: Choose between focused **Single Exercise** training or structured sequential **Circuit Mode** with auto-advancing queues.
+* **Workout Analytics Dashboard**: Logs total volume, completed sets, and active session duration to SQLite (`data.db`), rendering interactive volume distributions and daily trend charts via Pandas and Altair.
+* **Low-Latency WebRTC Streaming**: Multi-threaded video ingest using `streamlit-webrtc` with thread-safe locking (`threading.Lock`) and STUN/TURN traversal.
 
 ---
 
-## 🏗️ System Architecture
-
-This diagram shows how video frames flow from your webcam to the pose analyzer and then trigger the AI Voice Coach:
+## 🏗️ System Architecture & Data Flow
 
 ```mermaid
-graph TD
-    A[Webcam / Client Browser] -->|Video Stream WebRTC| B(Streamlit WebRTC Server)
-    B -->|Frames| C[MediaPipe Pose Landmarker]
-    C -->|33 Joint Coordinates| D[Exercise Detectors]
-    D -->|Rep Count & Form Metrics| E[Metrics Engine]
-    E -->|Database Sync on Set Completion| F[(SQLite Local DB)]
-    E -->|Trigger Form Event with 5s Cooldown| G[Voice Pipeline]
-    G -->|Context + Prompt| H[Groq Qwen 3.8 27B]
-    H -->|Text Advice| I[Google TTS Engine]
-    I -->|Audio Bytes| A
+sequenceDiagram
+    autonumber
+    actor User as User Webcam
+    participant WebRTC as Streamlit WebRTC (Worker Thread)
+    participant MP as MediaPipe Pose Landmarker
+    participant Detector as Exercise Detectors
+    participant Engine as Metrics Engine & SQLite
+    participant LLM as Groq Cloud (Qwen-27B)
+    participant TTS as Google TTS (gTTS)
+    actor Audio as Browser Audio Player
+
+    User->>WebRTC: Send live video stream (H.264/VP8)
+    loop Every Video Frame (~30 FPS)
+        WebRTC->>MP: Process BGR frame (detect_for_video)
+        MP-->>WebRTC: 33 body landmark coordinates (x, y, z, visibility)
+        WebRTC->>Detector: Execute active detector.process(landmarks)
+        Detector->>Detector: Calculate 2D joint angles & update rep state
+        Detector-->>WebRTC: Frame metrics (reps, angles, form flags)
+        WebRTC-->>User: Render visual skeleton (green=good, red=fault)
+    end
+
+    Note over WebRTC,Engine: Periodic Sync (~250ms interval)
+    WebRTC->>Engine: sync_metrics_update()
+    alt Set Completed
+        Engine->>Engine: Commit workout set & duration to SQLite
+    end
+    alt Form Fault Detected & 5s Cooldown Elapsed
+        Engine->>LLM: Dispatch event prompt & technical issue
+        LLM-->>Engine: 10-15 word motivational correction
+        Engine->>TTS: Convert text to MP3 audio bytes
+        TTS-->>Audio: Autoplay spoken feedback in browser
+    end
 ```
 
 ---
 
-## 🏃 Supported Exercises & Form Corrections
+## 🏃 Biomechanical Evaluation Matrix
 
-| Exercise | Monitored Joints / Landmarks | Form Issues Checked & Corrected |
-| :--- | :--- | :--- |
-| **Squats** | Hips, Knees, Ankles, Shoulders | Shallow squat depth, excessive forward torso lean |
-| **Push-ups** | Elbows, Shoulders, Hips, Ankles | Body misalignment ("Poor Form"), hip sagging, piked-up hips |
-| **Bicep Curls** | Shoulders, Elbows, Wrists, Torso | Torso swinging/momentum cheating, elbow drifting from the sides |
-| **Shoulder Press** | Shoulders, Elbows, Wrists, Lower Back | Incomplete overhead arm extension, excessive lower back arching |
-| **Lunges** | Hips, Knees, Ankles, Shoulders | Loss of balance / lateral sway, improper knee flexion |
-| **Planks** | Shoulders, Hips, Ankles | Body misalignment, sagging or piked hips (accumulates active hold seconds) |
-| **Jumping Jacks** | Shoulders, Wrists, Hips, Ankles | Stance ratio too narrow during extension, arms not raised above shoulders |
+| Exercise | Monitored Joints & Landmarks | Computed Angles / Metrics | State Machine Thresholds | Form Mistakes Evaluated |
+|---|---|---|---|---|
+| **Squats** | Hips (23, 24), Knees (25, 26), Ankles (27, 28), Shoulders (11, 12) | • Knee Angle (Hip-Knee-Ankle)<br>• Torso Back Angle (Shoulder-Hip-Knee) | • **Down**: Knee $< 100^\circ$<br>• **Up**: Knee $\ge 160^\circ$ (Rep +1) | • Shallow depth (Knee $> 100^\circ$ at bottom)<br>• Excessive torso forward lean (Back $< 130^\circ$) |
+| **Push-ups** | Shoulders (11, 12), Elbows (13, 14), Wrists (15, 16), Hips (23, 24), Ankles (27, 28) | • Elbow Angle (Shoulder-Elbow-Wrist)<br>• Body Angle (Shoulder-Hip-Ankle)<br>• Hip Deviation $y - \frac{y_s + y_a}{2}$ | • **Down**: Elbow $< 90^\circ$<br>• **Up**: Elbow $> 160^\circ$ (Rep +1) | • Body alignment fault (Body $\le 140^\circ$)<br>• Hip sagging (Dev $> 0.08$)<br>• Hip piking (Dev $< -0.08$) |
+| **Bicep Curls** | Shoulders (11, 12), Elbows (13, 14), Wrists (15, 16), Hips (23, 24) | • Elbow Angle (Shoulder-Elbow-Wrist)<br>• Torso Angle ($\text{atan2}(\vert dx\vert, \vert dy\vert)$)<br>• Elbow Drift $\vert x_e - x_s\vert$ | • **Up**: Elbow $< 50^\circ$<br>• **Down**: Elbow $> 160^\circ$ (Rep +1) | • Elbow drifting from ribs (Drift $> 0.06$)<br>• Torso momentum cheating (Torso $> 15^\circ$) |
+| **Shoulder Press** | Shoulders (11, 12), Elbows (13, 14), Wrists (15, 16), Hips (23, 24), Knees (25, 26) | • Elbow Angle (Shoulder-Elbow-Wrist)<br>• Lumbar Back Arch (Shoulder-Hip-Knee) | • **Up**: Elbow $> 160^\circ$<br>• **Down**: Elbow $< 90^\circ$ (Rep +1) | • Incomplete lockout (Elbow $< 160^\circ$)<br>• Excessive lower back arch (Back $< 140^\circ$) |
+| **Lunges** | Hips (23, 24), Knees (25, 26), Ankles (27, 28), Shoulders (11, 12) | • Front Knee Angle $\min(\theta_L, \theta_R)$<br>• Lateral Offset $\vert x_{s\_mid} - x_{h\_mid}\vert$ | • **Down**: Front Knee $< 100^\circ$<br>• **Up**: Front Knee $> 160^\circ$ (Rep +1) | • Lateral instability / loss of balance (Offset $> 0.10$)<br>• Insufficient knee drop |
+| **Planks** | Shoulders (11, 12), Hips (23, 24), Ankles (27, 28) | • Body Alignment Angle<br>• Vertical Hip Sag Deviation | Isometric Hold:<br>Accumulates active seconds when valid | • Body sag or pike (Hip Dev $\vert \Delta\vert > 0.08$)<br>• Body bend (Body $\le 140^\circ$) |
+| **Jumping Jacks** | Shoulders (11, 12), Wrists (15, 16), Hips (23, 24), Ankles (27, 28) | • Stance Ratio $\frac{\text{Ankle Dist}}{\text{Shoulder Width}}$<br>• Vertical Wrist Clearance vs Shoulders/Hips | • **Open**: Stance $> 1.2$ & Wrists above shoulders<br>• **Closed**: Stance $< 0.9$ & Wrists below hips | • Narrow foot spread (Stance $< 1.2$)<br>• Incomplete arm raise (Wrists below shoulders) |
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend & Web Server**: Streamlit, HTML5, Custom CSS
-* **Computer Vision**: MediaPipe (`pose_landmarker_full.task`), OpenCV (Headless)
-* **AI Intelligence**: Groq API (`qwen/qwen3.8-27b` model)
-* **Speech Processing**: Google Text-to-Speech (`gtts`)
-* **Streaming & Networking**: `streamlit-webrtc`, aiortc, STUN/TURN servers
-* **Database**: SQLite3, Pandas
-* **Environment**: Python 3.12 (Required for MediaPipe Windows compatibility), `python-dotenv`
+* **Frontend & Web Framework**: [Streamlit](https://streamlit.io/) (1.54.0), HTML5, Custom CSS, Adobe Clean typography
+* **Computer Vision**: [MediaPipe](https://developers.google.com/mediapipe) (0.10.14), [OpenCV Headless](https://opencv.org/) (4.10.0)
+* **Real-Time Video Ingestion**: [`streamlit-webrtc`](https://github.com/whitphx/streamlit-webrtc) (0.64.5), PyAV, WebRTC, STUN/TURN
+* **AI & Intelligence**: [Groq Cloud SDK](https://console.groq.com/) (`qwen/qwen3.8-27b` model with rate-limit defensive fallbacks)
+* **Speech Synthesis**: [Google Text-to-Speech (`gTTS`)](https://pypi.org/project/gTTS/) (2.5.3)
+* **Persistence & Analytics**: SQLite3, [Pandas](https://pandas.pydata.org/) (2.2.3), Altair
+* **Runtime & Packaging**: Python 3.12 (CPython), `python-dotenv` (1.2.2)
 
 ---
 
 ## ⚙️ Getting Started & Local Setup
 
 ### Prerequisites
-* **Python 3.12** is required.
-  > [!IMPORTANT]
-  > **Use Python 3.12**. `mediapipe` does not currently support Python 3.13 on Windows.
-* Package manager: `uv` (recommended) or `pip`.
+
+> [!IMPORTANT]
+> **Python 3.12 is required.** MediaPipe currently does not distribute stable Windows wheels for Python 3.13+. Please ensure you run Python 3.12.x.
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/HariomGupta0/GymGuru_AI.git
 cd GymGuru_AI
 ```
 
 ### 2. Configure Environment Variables
-Create a `.env` file in the root directory:
+
+Copy the provided environment template to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and provide your Groq API key:
+
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
-*(Your `.env` file is protected locally and ignored by Git automatically).*
+
+*(You can obtain a free Groq API key at [console.groq.com/keys](https://console.groq.com/keys)).*
 
 ### 3. Create a Virtual Environment & Install Dependencies
 
-**Using `uv` (Recommended):**
+#### Option A: Using `uv` (Fastest, ~10s)
+
 ```powershell
 # Create environment explicitly targeting Python 3.12
 uv venv --python "C:\Users\<username>\AppData\Local\Programs\Python\Python312\python.exe" .venv
 
-# Install dependencies
+# Install pinned dependencies
 uv pip install -r requirements.txt
 ```
 
-**Using Standard Virtualenv:**
+#### Option B: Using Standard Python `venv`
+
 ```powershell
-# Create venv with Python 3.12
+# Create virtual environment with Python 3.12
 py -3.12 -m venv .venv
 
-# Activate the virtual environment
+# Activate environment
 .\.venv\Scripts\Activate.ps1
 
 # Install requirements
@@ -122,54 +160,95 @@ pip install -r requirements.txt
 
 ## 🚦 Running the Application
 
-Launch the app directly through your virtual environment:
+Launch the Streamlit web application:
 
 ```powershell
-# Directly using the venv python executable:
+# Directly using the virtual environment:
 .\.venv\Scripts\python.exe -m streamlit run main.py
 
-# Or if the environment is activated (.venv):
+# Or if your virtual environment is active:
 python -m streamlit run main.py
 ```
 
-Open `http://localhost:8501` in your web browser, enter a username, select your exercise plan, and start training!
+Open **`http://localhost:8501`** in your browser, enter a unique username, choose your workout plan, and click **Start Session**!
+
+---
+
+## 🌐 WebRTC & Cloud Deployment Notes
+
+* **Localhost Testing**: WebRTC establishes an immediate peer connection over local loopback (`127.0.0.1`), needing no external network traversal.
+* **Streamlit Community Cloud**: Cloud containers block incoming UDP video ports. If deploying remotely, configure a free TURN relay server (such as [Xirsys](https://xirsys.com/) or [Metered](https://metered.ca/)) in Streamlit Cloud Secrets:
+
+```toml
+GROQ_API_KEY = "your_groq_api_key"
+TURN_URL = "turn:global.relay.metered.ca:443"
+TURN_USERNAME = "your_username"
+TURN_PASSWORD = "your_password"
+```
+
+The application will dynamically load these credentials from `st.secrets` without exposing them in your codebase.
 
 ---
 
 ## 📂 Project Structure
 
 ```
-├── core/
-│   └── base_exercise.py          # Abstract base class for workout detectors & angle math
-├── detectors/
-│   ├── biceps_curls.py           # Biceps curls angle & drift analysis
-│   ├── jumping_jacks.py          # Jumping jacks stance ratio & arm extension logic
-│   ├── lunges.py                 # Lunges knee flexion & balance analysis
-│   ├── plank.py                  # Plank body alignment & active hold timer
-│   ├── pushup.py                 # Push-up elbow angle & hip sag analysis
-│   ├── shoulder_press.py         # Shoulder press extension & back arch logic
-│   └── squat.py                  # Squat depth & back angle analysis
-├── ml_models/
-│   └── pose_landmarker_full.task # MediaPipe pose tracking model weights
-├── services/
-│   ├── auth/                     # User registration & login wall screens
-│   ├── coaching/                 # Groq client integration, TTS & voice pipeline
-│   ├── config/                   # Exercise metrics schemas & coaching system prompts
-│   ├── persistence/              # SQLite DB integration (exercise history & upserts)
-│   ├── state/                    # Default Streamlit session state management
-│   ├── tracking/                 # Real-time metrics sync & circuit progression
-│   ├── ui/                       # Stylesheet loaders & WebRTC custom style injections
-│   └── vision/                   # WebRTC video processor & skeletal rendering
-├── static/
-│   ├── style.css                 # Custom CSS overrides for Streamlit
-│   └── AdobeClean.otf            # Project local typography font
+GymGuru_AI/
+├── .devcontainer/                # Container definition for GitHub Codespaces / VS Code
+│   └── devcontainer.json
+├── .streamlit/                   # Streamlit server and theme configuration
+│   └── config.toml
+├── core/                         # Shared base classes and math utilities
+│   ├── __init__.py
+│   └── base_exercise.py          # Vector angle math & abstract BaseExercise class
+├── detectors/                    # Heuristic exercise detectors (form + rep logic)
+│   ├── __init__.py
+│   ├── biceps_curls.py
+│   ├── jumping_jacks.py
+│   ├── lunges.py
+│   ├── plank.py
+│   ├── pushup.py
+│   ├── shoulder_press.py
+│   └── squat.py
+├── LandingPage/                  # Standalone promotional landing website
+│   ├── fonts/                    # Averta typography assets
+│   ├── IMGs_add_your_own/        # Media gallery placeholder
+│   ├── videos_add_your_own/      # Video demo placeholder
+│   ├── index.html
+│   └── style.css
+├── ml_models/                    # MediaPipe pose estimation model weights
+│   ├── __init__.py
+│   └── pose_landmarker_full.task
+├── services/                     # Application service layer
+│   ├── __init__.py
+│   ├── auth/                     # Username registration & session wall
+│   ├── coaching/                 # Groq LLM integration, gTTS, and voice pipeline
+│   ├── config/                   # Workout schemas and system prompt templates
+│   ├── persistence/              # SQLite data repository & daily upsert logic
+│   ├── state/                    # Default session state initialization
+│   ├── tracking/                 # Metrics synchronization & circuit sequencing
+│   ├── ui/                       # Stylesheet loaders & WebRTC style injection
+│   └── vision/                   # VideoProcessorClass & skeleton renderer
+├── static/                       # Streamlit UI typography and styles
+│   ├── AdobeClean.otf
+│   └── style.css
+├── .env.example                  # Sanitized environment variable template
+├── .gitignore                    # Production-grade Git exclusion rules
+├── LICENSE                       # MIT License
 ├── main.py                       # Main application entry point & dashboard
-├── .gitignore                    # Git rules to exclude keys, database & virtualenvs
-├── packages.txt                  # Linux system dependencies for cloud deployment
-└── requirements.txt              # Pinned Python package dependencies
+├── packages.txt                  # Linux system packages for OpenCV deployment
+├── README.md                     # Project documentation
+└── requirements.txt              # Pinned Python dependencies
 ```
 
 ---
 
 ## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for full details.
+
+---
+
+<p align="center">
+  Developed by <a href="https://github.com/HariomGupta0">Hariom Gupta</a> • Built with Python, MediaPipe, Streamlit, and Groq Cloud
+</p>
