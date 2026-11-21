@@ -36,7 +36,52 @@ Using **MediaPipe Pose Landmarker** and custom biomechanical angle calculators, 
 
 ---
 
-## 🏗️ System Architecture & Data Flow
+## 🏗️ System Architecture
+
+### 1. High-Level Pipeline Flowchart
+
+```mermaid
+graph TD
+    subgraph Client["Client Browser"]
+        A["Webcam Video Stream"]
+        AP["Browser Audio Player<br/>(Autoplay Coaching Cues)"]
+        UI["Streamlit UI & Real-Time HUD"]
+    end
+
+    subgraph Streaming["Streaming Layer"]
+        B["Streamlit-WebRTC Server<br/>(aiortc / PyAV Worker Thread)"]
+    end
+
+    subgraph Vision["Pose Analysis Engine"]
+        C["MediaPipe Pose Landmarker<br/>(33 3D Body Landmarks)"]
+        D["Exercise Detectors<br/>(Angle Math & Hysteresis Counters)"]
+    end
+
+    subgraph Backend["State & Storage"]
+        E["Metrics Sync Engine<br/>(Thread-Safe Lock)"]
+        F[("SQLite Database<br/>(Local Workout Logs)")]
+    end
+
+    subgraph VoiceAI["Proactive Voice Coach"]
+        G["Voice Pipeline<br/>(5s Debounce Cooldown)"]
+        H["Groq Cloud LLM<br/>(qwen/qwen3.8-27b)"]
+        I["Google TTS Engine<br/>(gTTS MP3 Synthesis)"]
+    end
+
+    A -->|"WebRTC Video Stream"| B
+    B -->|"Raw Video Frames (~30 FPS)"| C
+    C -->|"33 Landmark Coordinates"| D
+    D -->|"Annotated Video with HUD"| B
+    B -->|"Real-Time Skeletal Feed"| UI
+    D -->|"Reps, Sets & Form Faults"| E
+    E -->|"Save on Set Completion"| F
+    E -->|"Trigger Coaching Event"| G
+    G -->|"Context & Form Error Details"| H
+    H -->|"10–15 Word Spoken Cue"| I
+    I -->|"MP3 Audio Payload"| AP
+```
+
+### 2. Real-Time Execution Sequence
 
 ```mermaid
 sequenceDiagram
