@@ -41,44 +41,49 @@ Using **MediaPipe Pose Landmarker** and custom biomechanical angle calculators, 
 ### 1. High-Level Pipeline Flowchart
 
 ```mermaid
-graph TD
-    subgraph Client["Client Browser"]
-        A["Webcam Video Stream"]
-        AP["Browser Audio Player<br/>(Autoplay Coaching Cues)"]
-        UI["Streamlit UI & Real-Time HUD"]
+flowchart LR
+    %% Modern Theme Styles
+    classDef client fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef stream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef vision fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef storage fill:#451a03,stroke:#fb923c,stroke-width:2px,color:#f8fafc;
+    classDef coach fill:#4c0519,stroke:#fb7185,stroke-width:2px,color:#f8fafc;
+
+    subgraph CLIENT["1. Ingestion & Display"]
+        direction TB
+        CAM["📷 Client Webcam"]:::client
+        HUD["🖥️ Streamlit Real-Time HUD"]:::client
+        SPK["🔊 Browser Audio (gTTS)"]:::client
     end
 
-    subgraph Streaming["Streaming Layer"]
-        B["Streamlit-WebRTC Server<br/>(aiortc / PyAV Worker Thread)"]
+    subgraph VISION_PIPE["2. Real-Time Vision & Tracking"]
+        direction TB
+        RTC["⚡ Streamlit-WebRTC<br/>(aiortc / PyAV Worker)"]:::stream
+        MP["🤖 MediaPipe Pose<br/>(33 3D Joint Coordinates)"]:::vision
+        DET["📐 Exercise Detectors<br/>(Angle Math & Hysteresis)"]:::vision
     end
 
-    subgraph Vision["Pose Analysis Engine"]
-        C["MediaPipe Pose Landmarker<br/>(33 3D Body Landmarks)"]
-        D["Exercise Detectors<br/>(Angle Math & Hysteresis Counters)"]
+    subgraph AI_BACKEND["3. State, Storage & AI Voice Coach"]
+        direction TB
+        ENG["📊 Metrics Engine<br/>(Thread-Safe Sync Lock)"]:::stream
+        DB[("💾 SQLite Database<br/>(Workout History & KPIs)")]:::storage
+        LLM["🧠 Groq Cloud LLM<br/>(qwen/qwen3.8-27b)"]:::coach
+        TTS["🎙️ Google TTS Engine<br/>(gTTS Audio Synthesis)"]:::coach
     end
 
-    subgraph Backend["State & Storage"]
-        E["Metrics Sync Engine<br/>(Thread-Safe Lock)"]
-        F[("SQLite Database<br/>(Local Workout Logs)")]
-    end
+    %% Real-time Vision Loop
+    CAM -->|"H.264/VP8 (~30 FPS)"| RTC
+    RTC -->|"BGR Video Frames"| MP
+    MP -->|"Joint Coordinates"| DET
+    DET -->|"Skeletal Overlay"| RTC
+    RTC -->|"Rendered Visual Feed"| HUD
 
-    subgraph VoiceAI["Proactive Voice Coach"]
-        G["Voice Pipeline<br/>(5s Debounce Cooldown)"]
-        H["Groq Cloud LLM<br/>(qwen/qwen3.8-27b)"]
-        I["Google TTS Engine<br/>(gTTS MP3 Synthesis)"]
-    end
-
-    A -->|"WebRTC Video Stream"| B
-    B -->|"Raw Video Frames (~30 FPS)"| C
-    C -->|"33 Landmark Coordinates"| D
-    D -->|"Annotated Video with HUD"| B
-    B -->|"Real-Time Skeletal Feed"| UI
-    D -->|"Reps, Sets & Form Faults"| E
-    E -->|"Save on Set Completion"| F
-    E -->|"Trigger Coaching Event"| G
-    G -->|"Context & Form Error Details"| H
-    H -->|"10–15 Word Spoken Cue"| I
-    I -->|"MP3 Audio Payload"| AP
+    %% Metrics & Voice Coaching Loop
+    DET -->|"Reps, Sets & Faults"| ENG
+    ENG -->|"Save Set Data"| DB
+    ENG -->|"5s Cooldown Trigger"| LLM
+    LLM -->|"10-15 Word Correction"| TTS
+    TTS -->|"Base64 MP3 Audio"| SPK
 ```
 
 ### 2. Real-Time Execution Sequence
